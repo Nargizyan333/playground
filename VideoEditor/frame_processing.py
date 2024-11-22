@@ -12,23 +12,14 @@ class FrameProcessing:
         self.__is_blurred = False
         self.__is_HSV_on = False
         self.__is_Lab_on = False
+        self.__h_flip = False
+        self.__v_flip = False
         self.__is_median_filtering_on = False
         self.__MAX_CONFIDENCE = 255
 
     def process_frame(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = self.__detector.detect(gray)
-        for face in faces:
-            roi = self.__detector.get_roi(gray, face)
-            roi = cv2.resize(roi, (200, 200))
-            label, confidence = self.recognizer.recognize(roi)
-            print(label, confidence)
-            if confidence < self.__confidence_threshold:
-                name = "Unknown"
-            else:
-                name = self.recognizer.get_name(label)
-            conf = 100 - (confidence / self.__MAX_CONFIDENCE) * 100
-            self.annotate_frame(frame, face, name, conf)
         if self.__is_grayscale_on:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         if self.__is_blurred:
@@ -39,6 +30,20 @@ class FrameProcessing:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)
         if self.__is_median_filtering_on:
             frame = cv2.medianBlur(frame, 9)
+        if self.__h_flip:
+            frame = cv2.flip(frame, 1)
+        if self.__v_flip:
+            frame = cv2.flip(frame, 0)
+        for face in faces:
+            roi = self.__detector.get_roi(gray, face)
+            roi = cv2.resize(roi, (200, 200))
+            label, confidence = self.recognizer.recognize(roi)
+            if confidence < self.__confidence_threshold:
+                name = "Unknown"
+            else:
+                name = self.recognizer.get_name(label)
+            conf = 100 - (confidence / self.__MAX_CONFIDENCE) * 100
+            self.annotate_frame(frame, face, name, conf)
         return frame
 
     def add_person(self, name):
@@ -101,3 +106,9 @@ class FrameProcessing:
         else:
             self.__is_median_filtering_on = True
             self.__is_blurred = False
+
+    def horizontal_flip(self):
+        self.__h_flip = not self.__h_flip
+
+    def vertical_flip(self):
+        self.__v_flip = not self.__v_flip

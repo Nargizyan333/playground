@@ -16,17 +16,23 @@ else:
         ret, frame = cap.read()
         to_show = frame_processor.process_frame(frame)
         cv2.imshow('frame', to_show)
-        if cv2.waitKey(3) & 0xFF == ord('q'):
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
             break
-        elif cv2.waitKey(3) & 0xFF == ord('g'):
+        elif key == ord('g'):
             frame_processor.grayscale()
-        elif cv2.waitKey(3) & 0xFF == ord('s'):
+        elif key == ord('s'):
             frame_processor.hsv()
-        elif cv2.waitKey(3) & 0xFF == ord('l'):
+        elif key == ord('l'):
             frame_processor.lab()
-        elif cv2.waitKey(3) & 0xFF == ord('b'):
+        elif key == ord('b'):
             frame_processor.blur()
-        elif cv2.waitKey(3) & 0xFF == ord('n'):
+        elif key == ord('n'):
             frame_processor.median_filtering()
+        elif key == ord('v'):
+            frame_processor.vertical_flip()
+        elif key == ord('h'):
+            frame_processor.horizontal_flip()
+
     cap.release()
     cv2.destroyAllWindows()
